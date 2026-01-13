@@ -100,7 +100,7 @@ const App: React.FC = () => {
           />
         );
       case 'SCAN':
-        return <ScanSession language={language} onBack={() => setCurrentView('HOME')} />;
+        return <ScanSession language={language} onBack={() => setCurrentView('HOME')} onVoiceConsult={startVoice} />;
       case 'APPOINTMENT':
         return <AppointmentForm language={language} onBack={() => setCurrentView('HOME')} />;
       case 'COMMUNITY':

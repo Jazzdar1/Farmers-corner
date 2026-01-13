@@ -1,16 +1,17 @@
 
 import React, { useState, useRef } from 'react';
 import { GoogleGenAI } from '@google/genai';
-import { Camera, ArrowLeft, MessageCircle, Loader2, Thermometer, CloudRain, Bug, Globe, ExternalLink, Star, Sprout } from 'lucide-react';
+import { Camera, ArrowLeft, MessageCircle, Loader2, Thermometer, CloudRain, Bug, Globe, ExternalLink, Star, Sprout, Info, Mic } from 'lucide-react';
 import { DiagnosisResult, Language } from '../types';
 import { translations } from '../locales';
 
 interface ScanSessionProps {
   onBack: () => void;
   language: Language;
+  onVoiceConsult: (prompt: string) => void;
 }
 
-export const ScanSession: React.FC<ScanSessionProps> = ({ onBack, language }) => {
+export const ScanSession: React.FC<ScanSessionProps> = ({ onBack, language, onVoiceConsult }) => {
   const [image, setImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
@@ -61,7 +62,11 @@ Format:
   "recommendation": "Step-by-step cultural and mechanical practices", 
   "pesticide": "Name of SKUAST-K recommended fungicide/insecticide and dosage per 100 liters of water", 
   "spraySchedule": "Ideal time to spray based on the current phenological stage of the orchard", 
-  "weatherAdvisory": "Critical weather-based warning for the next 48 hours for spraying" 
+  "weatherAdvisory": "Critical weather-based warning for the next 48 hours for spraying",
+  "relatedIssues": [
+    { "title": "Name of related issue 1", "description": "One sentence description of why it is related or how to spot it." },
+    { "title": "Name of related issue 2", "description": "One sentence description of why it is related or how to spot it." }
+  ]
 }` }
           ]
         }],
@@ -155,7 +160,7 @@ Format:
                     <div className="flex items-center justify-between relative z-10 mb-4">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-green-300 animate-pulse"></div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">{t.report}</span>
+                        <span className="text-[10px] font-black uppercase tracking-loose opacity-80">{t.report}</span>
                       </div>
                       <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${diagnosis.severity === 'High' ? 'bg-red-500 shadow-xl shadow-red-900/40' : 'bg-green-500 shadow-xl shadow-green-900/20'}`}>
                         {diagnosis.severity} SEVERITY
@@ -200,6 +205,31 @@ Format:
                       </div>
                     </div>
 
+                    {/* Related Issues Section */}
+                    {diagnosis.relatedIssues && diagnosis.relatedIssues.length > 0 && (
+                      <div className="space-y-6 pt-6">
+                        <h4 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                          <Info className="w-4 h-4 text-green-600" /> Related Issues to Watch For
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {diagnosis.relatedIssues.map((issue, idx) => (
+                            <div key={idx} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-4">
+                              <div>
+                                <h5 className="font-black text-gray-900 text-sm mb-1">{issue.title}</h5>
+                                <p className="text-xs text-gray-500 font-medium leading-relaxed">{issue.description}</p>
+                              </div>
+                              <button 
+                                onClick={() => onVoiceConsult(`Tell me more about ${issue.title} in Kashmiri orchards.`)}
+                                className="mt-auto flex items-center justify-center gap-2 py-3 bg-gray-50 text-green-700 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-50 transition-colors border border-green-100 shadow-sm"
+                              >
+                                <Mic className="w-3 h-3" /> Ask Voice Assistant
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {sources.length > 0 && (
                       <div className="pt-8 border-t border-gray-100">
                         <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
@@ -224,17 +254,4 @@ Format:
 
                     <button 
                       onClick={() => window.open(`https://wa.me/916006086915?text=${encodeURIComponent(`Assalam Alaikum Dar Towseef Sahab,\n\nI just used the Farmers Corner AI for diagnosis:\n\n📌 Problem: ${diagnosis.problem}\n📉 Severity: ${diagnosis.severity}\n🧪 Recommendation: ${diagnosis.pesticide}\n\nPlease guide me further.`)}`, '_blank')} 
-                      className="w-full py-6 bg-[#25D366] text-white rounded-[2rem] font-black text-lg shadow-xl shadow-green-900/20 hover:bg-[#128C7E] transition-all flex items-center justify-center gap-4 active:scale-95 group"
-                    >
-                      <MessageCircle className="w-7 h-7 group-hover:rotate-12 transition-transform" /> {t.shareWa}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+                      className="w-full py-6 bg-[#25D366] text-white

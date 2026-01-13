@@ -308,7 +308,8 @@ export const Home: React.FC<HomeProps> = ({ user, language, onLanguageChange, on
             className={`${item.bg} p-6 rounded-[2.5rem] border-2 border-transparent hover:border-white transition-all cursor-pointer group shadow-sm hover:shadow-2xl hover:-translate-y-1 active:scale-95`}
           >
             <div className={`${item.color} mb-4 group-hover:rotate-12 transition-transform w-14 h-14 rounded-2xl flex items-center justify-center bg-white shadow-lg`}>
-              {React.cloneElement(item.icon as React.ReactElement, { className: "w-8 h-8" })}
+              {/* Fix: cast to React.ReactElement<any> to avoid className type error */}
+              {React.cloneElement(item.icon as React.ReactElement<any>, { className: "w-8 h-8" })}
             </div>
             <h3 className="font-black text-gray-900 text-base leading-tight">{item.title}</h3>
             <p className="text-[10px] text-gray-500 mt-1 font-bold uppercase tracking-tighter opacity-70">{item.desc}</p>

@@ -37,6 +37,11 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface RelatedIssue {
+  title: string;
+  description: string;
+}
+
 export interface DiagnosisResult {
   problem: string;
   severity: 'Low' | 'Medium' | 'High';
@@ -44,6 +49,7 @@ export interface DiagnosisResult {
   pesticide: string;
   spraySchedule: string;
   weatherAdvisory: string;
+  relatedIssues?: RelatedIssue[];
 }
 
 export interface CommunityMessage {

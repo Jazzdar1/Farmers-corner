@@ -18,6 +18,8 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
   const [currentOutput, setCurrentOutput] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
+  const [manualText, setManualText] = useState('');
+  const [isProcessingText, setIsProcessingText] = useState(false);
 
   const t = translations[language];
   const langName = language === 'ur' ? 'Urdu' : language === 'ks' ? 'Kashmiri' : language === 'hi' ? 'Hindi' : 'English';
@@ -29,6 +31,15 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
   const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
   const transcriptionBufferRef = useRef({ input: '', output: '' });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [transcriptions, currentInput, currentOutput]);
 
   const encode = (bytes: Uint8Array) => {
     let binary = '';
@@ -208,6 +219,61 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
     }
   };
 
+  const handleManualTextSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!manualText.trim() || isProcessingText) return;
+
+    const userMsg = manualText;
+    setManualText('');
+    setIsProcessingText(true);
+
+    // Add user message to UI immediately
+    setTranscriptions(prev => [
+      ...prev,
+      { text: userMsg, role: 'user', timestamp: Date.now() }
+    ]);
+
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const parts: any[] = [{ text: userMsg }];
+      
+      if (attachedImage) {
+        parts.push({
+          inlineData: {
+            data: attachedImage.split(',')[1],
+            mimeType: 'image/jpeg'
+          }
+        });
+        setAttachedImage(null); // Clear image after sending
+      }
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: [{ role: 'user', parts }],
+        config: {
+          systemInstruction: `You are a textual agricultural expert for "Farmers Corner Kashmir". 
+          Target Audience: Apple growers in Kashmir.
+          Languages: Fluently handle English, Hindi, Urdu, and Kashmiri (${langName}). 
+          Tone: Reassuring, friendly, and expert. Provide concise but high-quality agricultural advice.`
+        }
+      });
+
+      const modelText = response.text || "I apologize, I couldn't process that request.";
+      setTranscriptions(prev => [
+        ...prev,
+        { text: modelText, role: 'model', timestamp: Date.now() }
+      ]);
+    } catch (error) {
+      console.error(error);
+      setTranscriptions(prev => [
+        ...prev,
+        { text: "Sorry, I'm having trouble connecting to my knowledge base right now.", role: 'model', timestamp: Date.now() }
+      ]);
+    } finally {
+      setIsProcessingText(false);
+    }
+  };
+
   useEffect(() => {
     if (initialPrompt) startSession();
     return () => stopSession();
@@ -272,6 +338,15 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
                    </div>
                 </div>
              )}
+             {isProcessingText && (
+                <div className="flex justify-start animate-in fade-in">
+                  <div className="bg-gray-50 p-4 rounded-2xl flex items-center gap-2 border border-gray-100">
+                    <Loader2 className="w-4 h-4 text-green-600 animate-spin" />
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Expert is writing...</span>
+                  </div>
+                </div>
+             )}
+             <div ref={chatEndRef} />
           </div>
         )}
       </div>
@@ -290,13 +365,13 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-3">
             <button 
               onClick={() => fileInputRef.current?.click()}
-              className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-gray-500 hover:text-green-600 hover:shadow-xl transition-all border border-gray-100 shadow-md shrink-0"
+              className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-gray-500 hover:text-green-600 hover:shadow-xl transition-all border border-gray-100 shadow-md shrink-0 active:scale-90"
               title={t.uploadPhoto}
             >
-              <ImageIcon className="w-7 h-7" />
+              <ImageIcon className="w-6 h-6" />
               <input 
                 type="file" 
                 ref={fileInputRef} 
@@ -306,19 +381,41 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
               />
             </button>
 
-            <div className="flex-1 h-14 bg-white rounded-full border border-gray-200 px-6 flex items-center gap-4 shadow-inner">
-              <History className="text-gray-400 w-5 h-5" />
-              <span className="text-xs font-black text-gray-400 truncate tracking-[0.1em] uppercase">{langName} AI EXPERT</span>
-            </div>
+            <form 
+              onSubmit={handleManualTextSubmit}
+              className="flex-1 relative flex items-center h-14"
+            >
+              <input 
+                type="text"
+                value={manualText}
+                onChange={(e) => setManualText(e.target.value)}
+                placeholder={status === AppState.ACTIVE ? "Listening..." : "Type your problem here..."}
+                className="w-full h-full bg-white rounded-full border border-gray-200 pl-6 pr-14 outline-none focus:ring-2 focus:ring-green-100 focus:border-green-300 transition-all font-bold text-gray-700 placeholder:text-gray-300 shadow-inner"
+              />
+              {manualText.trim() && (
+                <button 
+                  type="submit"
+                  disabled={isProcessingText}
+                  className="absolute right-2 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-700 transition-all active:scale-90 shadow-lg"
+                >
+                  {isProcessingText ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                </button>
+              )}
+              {!manualText.trim() && (
+                 <div className="absolute right-5 pointer-events-none">
+                    <History className="text-gray-200 w-4 h-4" />
+                 </div>
+              )}
+            </form>
 
             <button 
               onClick={toggleMic}
               disabled={status === AppState.CONNECTING}
-              className={`w-16 h-16 rounded-full flex items-center justify-center transition-all shadow-2xl active:scale-90 transform-gpu shrink-0 ${
+              className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-xl active:scale-90 transform-gpu shrink-0 ${
                 status === AppState.ACTIVE ? 'bg-red-500 text-white animate-pulse hover:bg-red-600' : 'bg-green-600 text-white hover:bg-green-700 shadow-green-900/20'
               }`}
             >
-              {status === AppState.CONNECTING ? <Loader2 className="animate-spin w-7 h-7" /> : status === AppState.ACTIVE ? <MicOff className="w-7 h-7" /> : <Mic className="w-7 h-7" />}
+              {status === AppState.CONNECTING ? <Loader2 className="animate-spin w-6 h-6" /> : status === AppState.ACTIVE ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
             </button>
           </div>
         </div>
