@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Farmers Corner Kashmir - Voice & Vision AI",
+  "description": "An interactive AI assistant for Kashmiri farmers. Scan leaves, diagnose apple diseases, talk to experts, and get weather-aware spray schedules.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
