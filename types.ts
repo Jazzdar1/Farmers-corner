@@ -12,7 +12,7 @@ export enum AppState {
   ERROR = 'ERROR'
 }
 
-export type ViewState = 'HOME' | 'VOICE' | 'SCAN' | 'APPOINTMENT' | 'COMMUNITY' | 'LOGIN' | 'WEATHER' | 'MARKET' | 'ESHOP';
+export type ViewState = 'HOME' | 'VOICE' | 'SCAN' | 'APPOINTMENT' | 'COMMUNITY' | 'LOGIN' | 'WEATHER' | 'MARKET' | 'ESHOP' | 'ADMIN';
 export type Language = 'en' | 'ur' | 'ks' | 'hi';
 
 export interface User {
@@ -20,6 +20,7 @@ export interface User {
   name: string;
   email: string;
   photoUrl: string;
+  isAdmin?: boolean;
 }
 
 export interface Product {
@@ -37,9 +38,27 @@ export interface CartItem {
   quantity: number;
 }
 
-export interface RelatedIssue {
-  title: string;
-  description: string;
+export interface SocialLink {
+  platform: 'YouTube' | 'Facebook' | 'Instagram' | 'WhatsApp';
+  url: string;
+  label: string;
+}
+
+export interface MandiConfig {
+  name: string;
+  varieties: string[];
+}
+
+export interface AdminSettings {
+  schemes: string[];
+  locations: Record<string, string[]>;
+  expertName: string;
+  expertPhone: string;
+  expertWhatsApp: string;
+  mandis: MandiConfig[];
+  weatherDistricts: string[];
+  socialLinks: SocialLink[];
+  expertSuggestions: { category: string; text: string }[];
 }
 
 export interface DiagnosisResult {
@@ -49,7 +68,7 @@ export interface DiagnosisResult {
   pesticide: string;
   spraySchedule: string;
   weatherAdvisory: string;
-  relatedIssues?: RelatedIssue[];
+  relatedIssues?: { title: string; description: string }[];
 }
 
 export interface CommunityMessage {

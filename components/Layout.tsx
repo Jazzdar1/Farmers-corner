@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Leaf, Globe, Menu, LogOut, User as UserIcon, Bell, ShoppingCart, X, Trash2, Plus, Minus, MessageCircle, Apple } from 'lucide-react';
+import { Leaf, Globe, Menu, LogOut, User as UserIcon, Bell, ShoppingCart, X, Trash2, Plus, Minus, MessageCircle, Apple, Settings } from 'lucide-react';
 import { Language, User, CartItem } from '../types';
 import { translations } from '../locales';
 
@@ -15,6 +15,7 @@ interface LayoutProps {
   onRemoveFromCart: (id: string) => void;
   onUpdateQuantity: (id: string, qty: number) => void;
   onClearCart: () => void;
+  onOpenAdmin: () => void;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ 
@@ -27,7 +28,8 @@ export const Layout: React.FC<LayoutProps> = ({
   cart,
   onRemoveFromCart,
   onUpdateQuantity,
-  onClearCart
+  onClearCart,
+  onOpenAdmin
 }) => {
   const t = translations[language];
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -54,7 +56,6 @@ export const Layout: React.FC<LayoutProps> = ({
     <div className="min-h-screen flex flex-col">
       <header className="bg-white border-b border-green-50 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-          {/* Enhanced Logo */}
           <div className="flex items-center gap-3 group cursor-pointer">
             <div className="relative">
               <div className="bg-green-600 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shadow-green-900/20 group-hover:rotate-6 transition-transform">
@@ -77,7 +78,6 @@ export const Layout: React.FC<LayoutProps> = ({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Dynamic Greeting */}
             {user && (
               <span className="hidden md:block text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
                 {getGreeting()}, {user.name.split(' ')[0]}
@@ -105,16 +105,9 @@ export const Layout: React.FC<LayoutProps> = ({
               )}
             </button>
 
-            <button 
-              onClick={() => setShowCart(true)}
-              className="relative p-2 text-gray-400 hover:text-purple-600 transition-colors"
-            >
+            <button onClick={() => setShowCart(true)} className="relative p-2 text-gray-400 hover:text-purple-600 transition-colors">
               <ShoppingCart className="w-6 h-6" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
-                  {cartCount}
-                </span>
-              )}
+              {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">{cartCount}</span>}
             </button>
 
             {user ? (
@@ -135,6 +128,16 @@ export const Layout: React.FC<LayoutProps> = ({
                         <p className="text-[11px] font-black text-gray-900 uppercase tracking-tight truncate">{user.name}</p>
                         <p className="text-[10px] text-gray-400 font-bold truncate">{user.email}</p>
                       </div>
+                      
+                      {user.isAdmin && (
+                        <button 
+                          onClick={() => { onOpenAdmin(); setShowProfileMenu(false); }}
+                          className="w-full flex items-center gap-3 px-5 py-3 text-[11px] font-black text-green-600 hover:bg-green-50 transition-colors uppercase tracking-widest border-b border-gray-50"
+                        >
+                          <Settings className="w-4 h-4" /> Admin Dashboard
+                        </button>
+                      )}
+
                       <button 
                         onClick={() => { onLogout(); setShowProfileMenu(false); }}
                         className="w-full flex items-center gap-3 px-5 py-3 text-[11px] font-black text-red-600 hover:bg-red-50 transition-colors uppercase tracking-widest"
@@ -146,29 +149,17 @@ export const Layout: React.FC<LayoutProps> = ({
                 )}
               </div>
             ) : (
-              <button 
-                onClick={onLoginClick}
-                className="bg-green-600 text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest hover:bg-green-700 transition-all shadow-md active:scale-95"
-              >
-                Sign In
-              </button>
+              <button onClick={onLoginClick} className="bg-green-600 text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest hover:bg-green-700 transition-all shadow-md active:scale-95">Sign In</button>
             )}
-            
-            <button className="md:hidden p-2 text-gray-400">
-              <Menu className="w-6 h-6" />
-            </button>
           </div>
         </div>
       </header>
 
-      {/* Shopping Cart Drawer */}
+      {/* Cart Drawer */}
       {showCart && (
         <>
-          <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] animate-in fade-in duration-300"
-            onClick={() => setShowCart(false)}
-          />
-          <div className={`fixed inset-y-0 ${language === 'ur' || language === 'ks' ? 'left-0' : 'right-0'} w-full max-w-md bg-white z-[110] shadow-2xl flex flex-col animate-in slide-in-from-${language === 'ur' || language === 'ks' ? 'left' : 'right'} duration-500`}>
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]" onClick={() => setShowCart(false)} />
+          <div className={`fixed inset-y-0 ${language === 'ur' || language === 'ks' ? 'left-0' : 'right-0'} w-full max-w-md bg-white z-[110] shadow-2xl flex flex-col`}>
             <div className="p-8 border-b flex items-center justify-between bg-gray-50/50">
               <div className="flex items-center gap-4">
                 <div className="bg-purple-600 p-3 rounded-2xl shadow-lg">
@@ -179,10 +170,7 @@ export const Layout: React.FC<LayoutProps> = ({
                   <p className="text-[10px] text-purple-600 font-black uppercase mt-1 tracking-widest">Store Checkout</p>
                 </div>
               </div>
-              <button 
-                onClick={() => setShowCart(false)}
-                className="p-3 bg-white border border-gray-100 rounded-full hover:bg-gray-50 transition-colors shadow-sm"
-              >
+              <button onClick={() => setShowCart(false)} className="p-3 bg-white border border-gray-100 rounded-full hover:bg-gray-50 transition-colors">
                 <X className="w-6 h-6 text-gray-400" />
               </button>
             </div>
@@ -190,14 +178,12 @@ export const Layout: React.FC<LayoutProps> = ({
             <div className="flex-1 overflow-y-auto p-8 space-y-6 no-scrollbar">
               {cart.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-                  <div className="bg-gray-50 p-12 rounded-[3rem] border border-gray-100">
-                    <ShoppingCart className="w-20 h-20 text-gray-200" />
-                  </div>
+                  <div className="bg-gray-50 p-12 rounded-[3rem] border border-gray-100"><ShoppingCart className="w-20 h-20 text-gray-200" /></div>
                   <h3 className="text-lg font-black text-gray-400 uppercase tracking-widest">{t.cartEmpty}</h3>
                 </div>
               ) : (
                 cart.map((item) => (
-                  <div key={item.product.id} className="flex gap-4 animate-in slide-in-from-bottom-4">
+                  <div key={item.product.id} className="flex gap-4">
                     <div className="w-24 h-24 rounded-[2rem] overflow-hidden bg-gray-50 shrink-0 border border-gray-100 p-2">
                       <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-contain" />
                     </div>
@@ -207,28 +193,13 @@ export const Layout: React.FC<LayoutProps> = ({
                           <h4 className="font-black text-gray-900 leading-tight mb-1">{item.product.name}</h4>
                           <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest bg-purple-50 px-2 py-0.5 rounded-md">{item.product.category}</span>
                         </div>
-                        <button 
-                          onClick={() => onRemoveFromCart(item.product.id)}
-                          className="p-2 text-gray-300 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <button onClick={() => onRemoveFromCart(item.product.id)} className="p-2 text-gray-300 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center bg-gray-50 rounded-2xl p-1 border border-gray-100">
-                          <button 
-                            onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)}
-                            className="w-8 h-8 flex items-center justify-center bg-white rounded-xl shadow-sm text-gray-400 hover:text-purple-600 transition-colors"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </button>
+                          <button onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center bg-white rounded-xl shadow-sm text-gray-400"><Minus className="w-3 h-3" /></button>
                           <span className="w-10 text-center text-sm font-black">{item.quantity}</span>
-                          <button 
-                            onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)}
-                            className="w-8 h-8 flex items-center justify-center bg-white rounded-xl shadow-sm text-gray-400 hover:text-purple-600 transition-colors"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
+                          <button onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center bg-white rounded-xl shadow-sm text-gray-400"><Plus className="w-3 h-3" /></button>
                         </div>
                       </div>
                     </div>
@@ -243,10 +214,7 @@ export const Layout: React.FC<LayoutProps> = ({
                   <span className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">{t.total}</span>
                   <span className="text-xl font-black text-gray-900">{cartCount} Items</span>
                 </div>
-                <button 
-                  onClick={handleCheckout}
-                  className="w-full bg-[#25D366] text-white py-6 rounded-[2.5rem] font-black text-lg shadow-xl shadow-green-900/10 hover:bg-[#128C7E] transition-all flex items-center justify-center gap-4 active:scale-95"
-                >
+                <button onClick={handleCheckout} className="w-full bg-[#25D366] text-white py-6 rounded-[2.5rem] font-black text-lg shadow-xl shadow-green-900/10 hover:bg-[#128C7E] flex items-center justify-center gap-4 active:scale-95 transition-all">
                   <MessageCircle className="w-6 h-6" /> {t.checkout}
                 </button>
               </div>
@@ -265,9 +233,7 @@ export const Layout: React.FC<LayoutProps> = ({
             <Leaf className="w-4 h-4" />
             <span className="text-[10px] font-black uppercase tracking-[0.3em]">Farmers Corner Kashmir</span>
           </div>
-          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-            © 2024 supporting kashmir's agriculture through smart innovation.
-          </p>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">© 2024 supporting kashmir's agriculture through smart innovation.</p>
         </div>
       </footer>
     </div>

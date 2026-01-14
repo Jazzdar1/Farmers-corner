@@ -169,11 +169,13 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
             }
 
             if (message.serverContent?.turnComplete) {
-              setTranscriptions(prev => [
-                ...prev,
-                { text: transcriptionBufferRef.current.input || "Analyzing...", role: 'user', timestamp: Date.now() },
-                { text: transcriptionBufferRef.current.output, role: 'model', timestamp: Date.now() }
-              ]);
+              if (transcriptionBufferRef.current.input || transcriptionBufferRef.current.output) {
+                setTranscriptions(prev => [
+                  ...prev,
+                  { text: transcriptionBufferRef.current.input || "Analyzing...", role: 'user', timestamp: Date.now() },
+                  { text: transcriptionBufferRef.current.output, role: 'model', timestamp: Date.now() }
+                ]);
+              }
               transcriptionBufferRef.current = { input: '', output: '' };
               setCurrentInput('');
               setCurrentOutput('');
@@ -244,7 +246,6 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
             mimeType: 'image/jpeg'
           }
         });
-        setAttachedImage(null); // Clear image after sending
       }
 
       const response = await ai.models.generateContent({
@@ -254,7 +255,7 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
           systemInstruction: `You are a textual agricultural expert for "Farmers Corner Kashmir". 
           Target Audience: Apple growers in Kashmir.
           Languages: Fluently handle English, Hindi, Urdu, and Kashmiri (${langName}). 
-          Tone: Reassuring, friendly, and expert. Provide concise but high-quality agricultural advice.`
+          Tone: Reassuring, friendly, and expert. Provide concise but high-quality agricultural advice. Lead Expert is Dar Towseef.`
         }
       });
 
@@ -263,6 +264,7 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
         ...prev,
         { text: modelText, role: 'model', timestamp: Date.now() }
       ]);
+      setAttachedImage(null);
     } catch (error) {
       console.error(error);
       setTranscriptions(prev => [
@@ -286,6 +288,7 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
 
   return (
     <div className="h-full flex flex-col bg-white">
+      {/* Header */}
       <div className="px-4 py-4 border-b flex items-center justify-between bg-gray-50 sticky top-0 z-20">
         <button onClick={onBack} className="flex items-center gap-2 text-gray-600 font-medium hover:text-gray-900 transition-colors">
           <ArrowLeft className={`w-5 h-5 ${language === 'ur' || language === 'ks' ? 'rotate-180' : ''}`} />
@@ -299,7 +302,8 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 flex flex-col items-center no-scrollbar">
+      {/* Chat History Area */}
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 flex flex-col items-center no-scrollbar bg-slate-50/30">
         {status === AppState.IDLE && transcriptions.length === 0 && (
           <div className="text-center py-20 animate-in fade-in zoom-in duration-500">
             <div className="bg-green-50 p-10 rounded-full inline-block mb-6 shadow-sm border border-green-100">
@@ -340,7 +344,7 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
              )}
              {isProcessingText && (
                 <div className="flex justify-start animate-in fade-in">
-                  <div className="bg-gray-50 p-4 rounded-2xl flex items-center gap-2 border border-gray-100">
+                  <div className="bg-white p-4 rounded-2xl flex items-center gap-2 border border-gray-100 shadow-sm">
                     <Loader2 className="w-4 h-4 text-green-600 animate-spin" />
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Expert is writing...</span>
                   </div>
@@ -351,7 +355,8 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
         )}
       </div>
 
-      <div className="p-6 bg-gray-50 border-t sticky bottom-0 z-20 backdrop-blur-md bg-white/80">
+      {/* Footer / Input Bar */}
+      <div className="p-6 bg-white border-t sticky bottom-0 z-20 shadow-2xl">
         <div className="max-w-3xl mx-auto">
           {attachedImage && (
             <div className="mb-4 relative inline-block animate-in slide-in-from-bottom-2">
@@ -365,10 +370,11 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3 h-14">
+            {/* Image Upload Button */}
             <button 
               onClick={() => fileInputRef.current?.click()}
-              className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-gray-500 hover:text-green-600 hover:shadow-xl transition-all border border-gray-100 shadow-md shrink-0 active:scale-90"
+              className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-gray-500 hover:text-green-600 hover:shadow-xl transition-all border border-gray-100 shadow-md shrink-0 active:scale-95"
               title={t.uploadPhoto}
             >
               <ImageIcon className="w-6 h-6" />
@@ -381,16 +387,17 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
               />
             </button>
 
+            {/* Text Input with Internal Send Button */}
             <form 
               onSubmit={handleManualTextSubmit}
-              className="flex-1 relative flex items-center h-14"
+              className="flex-1 relative h-14 flex items-center"
             >
               <input 
                 type="text"
                 value={manualText}
                 onChange={(e) => setManualText(e.target.value)}
                 placeholder={status === AppState.ACTIVE ? "Listening..." : "Type your problem here..."}
-                className="w-full h-full bg-white rounded-full border border-gray-200 pl-6 pr-14 outline-none focus:ring-2 focus:ring-green-100 focus:border-green-300 transition-all font-bold text-gray-700 placeholder:text-gray-300 shadow-inner"
+                className="w-full h-full bg-gray-50 rounded-full border border-gray-200 pl-6 pr-14 outline-none focus:ring-2 focus:ring-green-100 focus:border-green-300 transition-all font-bold text-gray-700 placeholder:text-gray-300 shadow-inner"
               />
               {manualText.trim() && (
                 <button 
@@ -401,18 +408,14 @@ export const VoiceSession: React.FC<VoiceSessionProps> = ({ onBack, language, in
                   {isProcessingText ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </button>
               )}
-              {!manualText.trim() && (
-                 <div className="absolute right-5 pointer-events-none">
-                    <History className="text-gray-200 w-4 h-4" />
-                 </div>
-              )}
             </form>
 
+            {/* Mic Toggle Button */}
             <button 
               onClick={toggleMic}
               disabled={status === AppState.CONNECTING}
               className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-xl active:scale-90 transform-gpu shrink-0 ${
-                status === AppState.ACTIVE ? 'bg-red-500 text-white animate-pulse hover:bg-red-600' : 'bg-green-600 text-white hover:bg-green-700 shadow-green-900/20'
+                status === AppState.ACTIVE ? 'bg-red-500 text-white animate-pulse hover:bg-red-600 shadow-red-500/20' : 'bg-green-600 text-white hover:bg-green-700 shadow-green-900/20'
               }`}
             >
               {status === AppState.CONNECTING ? <Loader2 className="animate-spin w-6 h-6" /> : status === AppState.ACTIVE ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
