@@ -5,6 +5,7 @@ export const translations = {
     title: 'Farmers Corner',
     subtitle: 'Kashmir Edition',
     heroTitle: "Kashmir's First Smart Apple Consultant",
+    heroSubtitle: "Valley's Digital Expert",
     heroDesc: "Diagnose diseases instantly by scanning leaves or talk to our voice assistant for expert farming advice tailored to the Valley's climate.",
     scanBtn: "Scan Leaf / Branch",
     voiceBtn: "Voice Consultation",
@@ -93,13 +94,20 @@ export const translations = {
     liveNow: "Live Now",
     seasonalFocus: "TODAY'S ORCHARD FOCUS",
     orchardStage: "Current Stage",
-    callLead: "Call Lead Expert"
+    callLead: "Call Lead Expert",
+    galleryTitle: "Orchard Gallery",
+    ledger: "Ledger",
+    sprayAlert: "Spray Advice",
+    pesticides: "Pesticides",
+    storage: "CA Storage"
   },
   hi: {
     dir: 'ltr',
     title: 'फार्मर्स कॉर्नर',
     subtitle: 'कश्मीर संस्करण',
     heroTitle: "कश्मीर का पहला स्मार्ट एप्पल सलाहकार",
+    // Added heroSubtitle to fix Home.tsx error
+    heroSubtitle: "घाटी का डिजिटल विशेषज्ञ",
     heroDesc: "पत्तियों को स्कैन करके तुरंत बीमारियों का पता लगाएं या विशेषज्ञ खेती की सलाह के लिए वॉयस असिस्टेंट से बात करें।",
     scanBtn: "पत्ती स्कैन करें",
     voiceBtn: "वॉयस परामर्श",
@@ -188,13 +196,20 @@ export const translations = {
     liveNow: "अभी लाइव",
     seasonalFocus: "आज का बागवानी फोकस",
     orchardStage: "वर्तमान चरण",
-    callLead: "प्रमुख विशेषज्ञ को कॉल करें"
+    callLead: "प्रमुख विशेषज्ञ को कॉल करें",
+    galleryTitle: "बागवानी गैलरी",
+    ledger: "बहीखाता",
+    sprayAlert: "स्प्रे सलाह",
+    pesticides: "कीटनाशक",
+    storage: "कोल्ड स्टोरेज"
   },
   ur: {
     dir: 'rtl',
     title: 'فارمرز کارنر',
     subtitle: 'کشمیر ایڈیشن',
     heroTitle: "کشمیر کا پہلا اسمارٹ ایپل کنسلٹنٹ",
+    // Added heroSubtitle to fix Home.tsx error
+    heroSubtitle: "وادی کا ڈیجیٹل ماہر",
     heroDesc: "پتوں کو اسکین کریں یا ماہرانہ مشورے کے لیے وائس اسسٹنٹ سے بات کریں۔",
     scanBtn: "پتہ اسکین کریں",
     voiceBtn: "وائس مشورہ",
@@ -283,14 +298,21 @@ export const translations = {
     liveNow: "لائیو",
     seasonalFocus: "باغبانی کی خصوصی توجہ",
     orchardStage: "موجودہ مرحلہ",
-    callLead: "کال ماہر"
+    callLead: "کال ماہر",
+    galleryTitle: "گیلری",
+    ledger: "لیجر",
+    sprayAlert: "اسپرے مشورہ",
+    pesticides: "ادویات",
+    storage: "کولڈ اسٹوریج"
   },
   ks: {
     dir: 'rtl',
     title: 'فارمرز کارنر',
     subtitle: 'کشمیر ایڈیشن',
     heroTitle: "کٔشیٖرِ ہُند گۄڈنیُک سمارٹ ژوٗنٹھ مَشورہ کار",
-    heroDesc: "پَنن ہٕنٛز جانچ کٔرِو یا مٲہِرَن سٟتؠ وائس کٔرِو کَتھ باتھ۔",
+    // Added heroSubtitle to fix Home.tsx error
+    heroSubtitle: "وادی ہُنٛد ڈیجیٹل مٲہِر",
+    heroDesc: "پَنن ہٕنٛز جانچ کٔرِو या مٲہِرَن سٟتؠ وائس کٔرِو کَتھ باتھ۔",
     scanBtn: "پَن سُکین کٔرِو",
     voiceBtn: "وائس مَشورہ",
     bookBtn: "مٲہِر سیشن",
@@ -378,6 +400,11 @@ export const translations = {
     liveNow: "لائیو",
     seasonalFocus: "باغبٲنی خۄصوٗصی تَوجہ",
     orchardStage: "موجوٗدٕ مَرحلہ",
-    callLead: "کال مٲہِر"
+    callLead: "کال مٲہِر",
+    galleryTitle: "گیلری",
+    ledger: "بہی کھاتہ",
+    sprayAlert: "مشورہ",
+    pesticides: "دوا",
+    storage: "کولڈ اسٹوریج"
   }
 };

@@ -11,6 +11,10 @@ import { MarketRates } from './components/MarketRates';
 import { EShop } from './components/EShop';
 import { Login } from './components/Login';
 import { AdminPanel } from './components/AdminPanel';
+import { Toolbox } from './components/Toolbox';
+import { Ledger } from './components/Ledger';
+import { Gallery } from './components/Gallery';
+import { DiseaseLibrary } from './components/DiseaseLibrary';
 import { ViewState, Language, User, CartItem, Product, AdminSettings } from './types';
 import { translations } from './locales';
 
@@ -78,21 +82,9 @@ const App: React.FC = () => {
 
   const t = translations[language];
 
-  const handleLogin = (newUser: User) => {
-    setUser(newUser);
-    setCurrentView('HOME');
-  };
-
   const renderView = () => {
-    // Auth Guard
     if (!user && currentView !== 'HOME' && currentView !== 'LOGIN') {
       setCurrentView('LOGIN');
-      return null;
-    }
-
-    // Admin Guard
-    if (currentView === 'ADMIN' && !user?.isAdmin) {
-      setCurrentView('HOME');
       return null;
     }
 
@@ -100,7 +92,7 @@ const App: React.FC = () => {
       case 'ADMIN':
         return <AdminPanel products={products} setProducts={setProducts} settings={settings} setSettings={setSettings} onBack={() => setCurrentView('HOME')} />;
       case 'LOGIN':
-        return <Login language={language} onLogin={handleLogin} />;
+        return <Login language={language} onLogin={(u) => { setUser(u); setCurrentView('HOME'); }} />;
       case 'VOICE':
         return <VoiceSession language={language} onBack={() => setCurrentView('HOME')} initialPrompt={initialVoicePrompt} />;
       case 'SCAN':
@@ -115,6 +107,14 @@ const App: React.FC = () => {
         return <MarketRates language={language} onBack={() => setCurrentView('HOME')} mandis={settings.mandis} />;
       case 'ESHOP':
         return <EShop language={language} onBack={() => setCurrentView('HOME')} products={products} onAddToCart={(p) => setCart([...cart, {product: p, quantity: 1}])} />;
+      case 'TOOLBOX':
+        return <Toolbox language={language} onBack={() => setCurrentView('HOME')} onNavigate={(v) => setCurrentView(v)} />;
+      case 'LEDGER':
+        return <Ledger language={language} onBack={() => setCurrentView('TOOLBOX')} />;
+      case 'GALLERY':
+        return <Gallery language={language} onBack={() => setCurrentView('HOME')} />;
+      case 'DISEASES':
+        return <DiseaseLibrary language={language} onBack={() => setCurrentView('HOME')} onConsult={(p) => { setInitialVoicePrompt(p); setCurrentView('VOICE'); }} />;
       default:
         return (
           <Home 
@@ -126,6 +126,9 @@ const App: React.FC = () => {
             onViewWeather={() => setCurrentView('WEATHER')}
             onViewMarket={() => setCurrentView('MARKET')}
             onOpenEShop={() => setCurrentView('ESHOP')}
+            onOpenToolbox={() => setCurrentView('TOOLBOX')}
+            onViewGallery={() => setCurrentView('GALLERY')}
+            onViewDiseases={() => setCurrentView('DISEASES')}
             settings={settings}
           />
         );

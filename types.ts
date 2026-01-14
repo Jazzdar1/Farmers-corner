@@ -12,7 +12,12 @@ export enum AppState {
   ERROR = 'ERROR'
 }
 
-export type ViewState = 'HOME' | 'VOICE' | 'SCAN' | 'APPOINTMENT' | 'COMMUNITY' | 'LOGIN' | 'WEATHER' | 'MARKET' | 'ESHOP' | 'ADMIN';
+export type ViewState = 
+  | 'HOME' | 'VOICE' | 'SCAN' | 'APPOINTMENT' | 'COMMUNITY' 
+  | 'LOGIN' | 'WEATHER' | 'MARKET' | 'ESHOP' | 'ADMIN' 
+  | 'TOOLBOX' | 'LEDGER' | 'SCHEMES' | 'SOIL_AI'
+  | 'DISEASES' | 'GALLERY' | 'SPRAY_CALENDAR';
+
 export type Language = 'en' | 'ur' | 'ks' | 'hi';
 
 export interface User {
@@ -81,4 +86,12 @@ export interface CommunityMessage {
   timestamp: number;
   likes: number;
   comments: number;
+}
+
+export interface ExpenseRecord {
+  id: string;
+  category: 'Spray' | 'Fertilizer' | 'Labor' | 'Transport' | 'Other';
+  amount: number;
+  date: string;
+  note: string;
 }
